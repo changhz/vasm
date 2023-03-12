@@ -1,6 +1,6 @@
 import os
 import flag
-import lib.input {str_input, f64_input}
+import lib.restr {String}
 
 fn main() {
 	mut fprs := flag.new_flag_parser(os.args)
@@ -9,10 +9,7 @@ fn main() {
 	fprs.description('')
 	fprs.skip_executable()
 
-	reserve := fprs.bool('reserve', `r`, false, 'Reserve a table')
-
-	mut name := fprs.string('name', `n`, '', 'Your name')
-	mut nguests := fprs.int('nguests', `a`, -1, 'Number of guests')
+	path := fprs.string('file', `f`, '', 'File path')
 
 	additional_args := fprs.finalize() or {
 		eprintln(err)
@@ -20,27 +17,18 @@ fn main() {
 		return
 	}
 
-	if reserve {
-		println('Table reservation service.')
+	if path != '' {
+		mut txt := os.read_file(path)!
+		for {
+			start, end := String(txt).find(r'\{\{(.*)\}\}')
+			if start == -1 {break}
 
-		if name == '' {
-			name = str_input("What's your name?")
+			mut comp := txt[start+2 .. end-2]
+			comp = os.read_file(comp)!
+			txt = txt[..start] + comp + txt[end..]
 		}
-
-		if nguests == -1 {
-			num, abort := f64_input("How many are you?")
-			if abort { return }
-			nguests = int(num)
-		}
-
-		if name == input.abort_key {
-			println('You chose not to tell us your name.')
-		} else {
-			println('Your name is $name and')
-		}
-
-		println('you are $nguests.str() persons')
-		println('A table has been reserved for you, thank you.')
+		
+		println(txt)
 		return
 	}
 
