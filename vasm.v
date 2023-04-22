@@ -9,7 +9,7 @@ fn main() {
 	fprs.description('')
 	fprs.skip_executable()
 
-	path := fprs.string('file', `f`, '', 'File path')
+	root := fprs.string('root', `d`, '', 'Root directory')
 
 	additional_args := fprs.finalize() or {
 		eprintln(err)
@@ -17,14 +17,16 @@ fn main() {
 		return
 	}
 
+	path := additional_args[0]
+
 	if path != '' {
 		mut txt := os.read_file(path)!
 		for {
-			start, end := String(txt).find(r'\{\{(.*)\}\}')
+			start, end := String(txt).find(r'\[ins\]\((.*)\)')
 			if start == -1 {break}
 
-			mut comp := txt[start+2 .. end-2]
-			comp = os.read_file(comp)!
+			mut comp := txt[start+6 .. end-1]
+			comp = os.read_file(root + comp)!
 			txt = txt[..start] + comp + txt[end..]
 		}
 		
