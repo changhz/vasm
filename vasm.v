@@ -22,6 +22,19 @@ fn main() {
 	if path != '' {
 		mut txt := os.read_file(path)!
 		for {
+			// apply vars
+			doc := String(txt).replace(r'.*<var>(.*)</var>.*', r'\0').trim('\n').trim(' ')
+			txt = String(txt).replace(r'<var>.*</var>', '')
+			vars := doc.split('\n')
+			for kvln in vars {
+				kv := kvln.split('=')
+				k := kv[0].trim(' ')
+				mut v := ''
+				if kv.len > 1 { v = kv[1].trim(' ') }
+				txt = String(txt).replace(r'\{\{'+k+r'\}\}', v)
+			}
+
+			// load [ins](.*)
 			start, end := String(txt).find(r'\[ins\]\((.*)\)')
 			if start == -1 {break}
 
@@ -30,7 +43,7 @@ fn main() {
 			txt = txt[..start] + comp + txt[end..]
 		}
 		
-		println(txt)
+		println(txt.trim(' ').trim('\n'))
 		return
 	}
 
