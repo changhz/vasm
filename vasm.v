@@ -22,6 +22,8 @@ fn main() {
 	if path != '' {
 		mut txt := os.read_file(path)!
 		for {
+			txt = String(txt).replace(r'\(rm\|.*\|\)', '')
+
 			// apply vars
 			doc := String(txt).replace(r'.*<var>(.*)</var>.*', r'\0').trim('\n').trim(' ')
 			txt = String(txt).replace(r'<var>.*</var>', '')
