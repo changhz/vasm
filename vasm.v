@@ -27,7 +27,8 @@ fn main() {
 			// apply vars
 			doc_start, doc_end := String(txt).find(r'<var>.*</var>')
 			if doc_start >= 0 {
-				doc := txt[doc_start+5 .. doc_end-6].trim('\n')
+				mut doc := txt[doc_start+5 .. doc_end-6].trim('\n')
+				doc = String(doc).replace(r'<!--.*-->', '')
 				vars := doc.split('\n')
 				for kvln in vars {
 					kv := kvln.split('=')
