@@ -25,15 +25,18 @@ fn main() {
 			txt = String(txt).replace(r'\(rm\|.*\|\)', '')
 
 			// apply vars
-			doc := String(txt).replace(r'.*<var>(.*)</var>.*', r'\0').trim('\n').trim(' ')
-			txt = String(txt).replace(r'<var>.*</var>', '')
-			vars := doc.split('\n')
-			for kvln in vars {
-				kv := kvln.split('=')
-				k := kv[0].trim(' ')
-				mut v := ''
-				if kv.len > 1 { v = kv[1].trim(' ') }
-				txt = String(txt).replace(r'\{\{'+k+r'\}\}', v)
+			doc_start, doc_end := String(txt).find(r'<var>.*</var>')
+			if doc_start >= 0 {
+				doc := txt[doc_start+5 .. doc_end-6].trim('\n')
+				vars := doc.split('\n')
+				for kvln in vars {
+					kv := kvln.split('=')
+					k := kv[0].trim(' ')
+					mut v := ''
+					if kv.len > 1 { v = kv[1].trim(' ') }
+					txt = String(txt).replace(r'\{\{'+k+r'\}\}', v)
+				}
+				txt = String(txt).replace(r'<var>.*</var>', '')
 			}
 
 			// load [ins](.*)
